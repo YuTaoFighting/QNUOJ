@@ -59,19 +59,19 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
-    user = UserSerializer
-    real_name = serializers.SerializerMethodField()
+    username = serializers.SerializerMethodField()
+    email = serializers.SerializerMethodField()
 
     class Meta:
-        model = User
-        fields = '__all__'
+        model = UserProfile
+        fields = ['id', 'username', 'email', 'ac_problems',
+                  'real_name', 'avatar', 'blog', 'github', 'school', 'major', 'rating']
 
-    def __init__(self, *args, **kwargs):
-        self.show_real_name = kwargs.pop('show_real_name', False)
-        super(UserProfileSerializer, self).__init__(*args, **kwargs)
+    def get_username(self, obj):
+        return obj.user.username
 
-    def get_real_name(self, obj):
-        return obj.real_name if self.show_real_name else None
+    def get_email(self, obj):
+        return obj.user.email
 
 
 class EditUserSerializer(serializers.ModelSerializer):

@@ -17,11 +17,9 @@ from django.conf.urls import url, include
 from django.contrib import admin
 
 from account.urls import router
-from account.views import UserView
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     # url(r'^user/', include('account.urls')),
     url(r'^rest/', include(router.urls)),
-    url(r'^account/', UserView.as_view()),
 ]
