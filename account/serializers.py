@@ -1,33 +1,34 @@
 from rest_framework import serializers
 from django import forms
+from rest_framework.utils import model_meta
+
 from account.models import User, UserProfile
 
 
-class UserLoginSerializer(serializers.ModelSerializer):
+class UserLoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField()
     tfa_code = serializers.CharField(required=False, allow_blank=True)
 
 
-class UsernameOrEmailCheckSerializer(serializers.ModelSerializer):
+class UsernameOrEmailCheckSerializer(serializers.Serializer):
     username = serializers.CharField(required=False)
     email = serializers.CharField(required=False)
 
 
-class UserRegisterSerializer(serializers.ModelSerializer):
+class UserRegisterSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=32)
     password = serializers.CharField(min_length=6)
     email = serializers.CharField(max_length=64)
-    captcha = serializers.CharField()
 
 
-class UserChangeEmailSerializer(serializers.ModelSerializer):
+class UserChangeEmailSerializer(serializers.Serializer):
     password = serializers.CharField()
     new_email = serializers.CharField(max_length=64)
     tfa_code = serializers.CharField(required=False, allow_blank=True)
 
 
-class GenerateUserSerializer(serializers.ModelSerializer):
+class GenerateUserSerializer(serializers.Serializer):
     prefix = serializers.CharField(max_length=16, allow_blank=True)
     suffix = serializers.CharField(max_length=16, allow_blank=True)
     number_from = serializers.IntegerField()
@@ -35,10 +36,10 @@ class GenerateUserSerializer(serializers.ModelSerializer):
     password_length = serializers.IntegerField(max_value=16, default=8)
 
 
-class ImportUserSerializer(serializers.ModelSerializer):
-    users = serializers.ListField(
-        child=serializers.ListField(child=serializers.CharField(max_length=64))
-    )
+# class ImportUserSerializer(serializers.Serializer):
+#     users = serializers.ListField(
+#         child=serializers.DictField()
+#     )
 
 
 class UserAdminSerializer(serializers.ModelSerializer):
@@ -61,6 +62,7 @@ class UserSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     username = serializers.SerializerMethodField()
     email = serializers.SerializerMethodField()
+    rating = serializers.SerializerMethodField()
 
     class Meta:
         model = UserProfile
@@ -73,8 +75,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
     def get_email(self, obj):
         return obj.user.email
 
+    def get_rating(self, obj):
+        return obj.rating
 
-class EditUserSerializer(serializers.ModelSerializer):
+
+class EditUserSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     username = serializers.CharField(max_length=32)
     real_name = serializers.CharField(max_length=32, allow_blank=True, allow_null=True)
@@ -83,7 +88,7 @@ class EditUserSerializer(serializers.ModelSerializer):
     is_disabled = serializers.BooleanField()
 
 
-class EditUserProfileSerializer(serializers.ModelSerializer):
+class EditUserProfileSerializer(serializers.Serializer):
     real_name = serializers.CharField(max_length=32, allow_null=True, required=False)
     avatar = serializers.CharField(max_length=256, allow_blank=True, required=False)
     blog = serializers.URLField(max_length=256, allow_blank=True, required=False)
@@ -92,12 +97,12 @@ class EditUserProfileSerializer(serializers.ModelSerializer):
     major = serializers.CharField(max_length=64, allow_blank=True, required=False)
 
 
-class ApplyResetPasswordSerializer(serializers.ModelSerializer):
+class ApplyResetPasswordSerializer(serializers.Serializer):
     email = serializers.EmailField()
     captcha = serializers.CharField()
 
 
-class ResetPasswordSerializer(serializers.ModelSerializer):
+class ResetPasswordSerializer(serializers.Serializer):
     token = serializers.CharField()
     password = serializers.CharField(min_length=6)
     captcha = serializers.CharField()
@@ -107,7 +112,7 @@ class ImageUploadForm(forms.Form):
     file = forms.FileField()
 
 
-class UsernameSerializer(serializers.ModelSerializer):
+class UsernameSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     username = serializers.CharField()
     real_name = serializers.SerializerMethodField()

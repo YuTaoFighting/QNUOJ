@@ -1,12 +1,20 @@
 from django.db import models
 
 
+class Permission(models.Model):
+    name = models.CharField(max_length=64, unique=True)
+
+    class Meta:
+        db_table = "permission"
+
+
 class User(models.Model):
     username = models.TextField(unique=True)
     password = models.CharField(max_length=256)
     email = models.EmailField(null=True)
     create_time = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     is_disabled = models.BooleanField(default=False)
+    permissions = models.ManyToManyField(Permission)
 
     class Meta:
         db_table = "user"
@@ -33,19 +41,3 @@ class UserProfile(models.Model):
 
     class Meta:
         db_table = "user_profile"
-
-
-class Role(models.Model):
-    name = models.CharField(max_length=64, unique=True)
-    users = models.ManyToManyField(User)
-
-    class Meta:
-        db_table = "role"
-
-
-class Permission(models.Model):
-    name = models.CharField(max_length=64, unique=True)
-    roles = models.ManyToManyField(Role)
-
-    class Meta:
-        db_table = "permission"

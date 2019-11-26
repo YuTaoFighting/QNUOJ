@@ -13,13 +13,18 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-from django.conf.urls import url, include
+from django.conf.urls import url
 from django.contrib import admin
 
-from account.urls import router
+from announcement.views import AnnouncementAPIView, AnnouncementsAPIView
+from account.views import UsersAPIView, UserAPIView, UserProfilesAPIView, UserProfileAPIView
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    # url(r'^user/', include('account.urls')),
-    url(r'^rest/', include(router.urls)),
+    url(r'^users/$', UsersAPIView.as_view()),
+    url(r'^users/(?P<pk>\d+)/$', UserAPIView.as_view()),
+    url(r'^userprofiles/$', UserProfilesAPIView.as_view()),
+    url(r'^userprofiles/(?P<pk>\d+)/$', UserProfileAPIView.as_view()),
+    url(r'^announcements/$', AnnouncementsAPIView.as_view()),
+    url(r'^announcements/(?P<pk>\d+)/$', AnnouncementAPIView.as_view()),
 ]
