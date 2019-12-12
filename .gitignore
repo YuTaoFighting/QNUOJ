@@ -13,6 +13,7 @@ dist/
 eggs/
 lib64/
 parts/
+logs/
 sdist/
 var/
 *.egg-info/
