@@ -2,7 +2,7 @@ from rest_framework import serializers
 from django import forms
 from rest_framework.utils import model_meta
 
-from account.models import User, UserProfile
+from account.models import User, UserProfile, Permission
 
 
 class UserLoginSerializer(serializers.Serializer):
@@ -53,21 +53,30 @@ class UserAdminSerializer(serializers.ModelSerializer):
         return obj.userprofile.realname
 
 
+class PermissionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Permission
+        fields = ['name']
+
+
 class UserSerializer(serializers.ModelSerializer):
+    permissions = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'create_time', 'is_disabled']
+        fields = ['id', 'username', 'email', 'permissions', 'create_time', 'is_disabled']
+
+    def get_permissions(self, obj):
+        return [permission.name for permission in obj.permissions.all()]
 
 
-class UserProfileSerializer(serializers.ModelSerializer):
+class UserProfilesSerializer(serializers.ModelSerializer):
     username = serializers.SerializerMethodField()
     email = serializers.SerializerMethodField()
-    rating = serializers.SerializerMethodField()
 
     class Meta:
         model = UserProfile
-        fields = ['id', 'username', 'email', 'ac_problems',
-                  'real_name', 'avatar', 'blog', 'github', 'school', 'major', 'rating']
+        fields = ['id', 'username', 'email']
 
     def get_username(self, obj):
         return obj.user.username
@@ -75,17 +84,34 @@ class UserProfileSerializer(serializers.ModelSerializer):
     def get_email(self, obj):
         return obj.user.email
 
+
+class UserProfileSerializer(UserProfilesSerializer):
+    permissions = serializers.SerializerMethodField()
+    rating = serializers.SerializerMethodField()
+
+    class Meta:
+        model = UserProfile
+        fields = ['id', 'username', 'email', "ac_total", 'permissions', 'ac_problems', 'desc',
+                  'real_name', 'avatar', 'blog', 'github', 'school', 'major', 'rating']
+
+    def get_permissions(self, obj):
+        return [permission.name for permission in obj.user.permissions.all()]
+
     def get_rating(self, obj):
         return obj.rating
 
 
 class EditUserSerializer(serializers.Serializer):
-    id = serializers.IntegerField()
-    username = serializers.CharField(max_length=32)
-    real_name = serializers.CharField(max_length=32, allow_blank=True, allow_null=True)
+    def update(self, instance, validated_data):
+        pass
+
+    def create(self, validated_data):
+        pass
+
+    # username = serializers.CharField(max_length=32)
     password = serializers.CharField(min_length=6, allow_blank=True, required=False, default=None)
-    email = serializers.EmailField(max_length=64)
-    is_disabled = serializers.BooleanField()
+    email = serializers.EmailField(max_length=64, allow_blank=True, required=False, default=None)
+    is_disabled = serializers.BooleanField(required=False, default=False)
 
 
 class EditUserProfileSerializer(serializers.Serializer):
@@ -125,9 +151,37 @@ class UsernameSerializer(serializers.Serializer):
         return obj.userprofile.real_name if self.need_ream_name else None
 
 
-class RankInfoSerializer(serializers.ModelSerializer):
-    user = UsernameSerializer
+class RankListSerializer(serializers.ModelSerializer):
+    id = serializers.SerializerMethodField()
+    username = serializers.SerializerMethodField()
+    rank = serializers.SerializerMethodField()
 
     class Meta:
         model = UserProfile
-        fields = '__all__'
+        fields = ['id', 'rank', 'username', 'desc', 'ac_total', 'rating']
+
+    def get_id(self, obj):
+        return obj.user.id
+
+    def get_username(self, obj):
+        return obj.user.username
+
+    def get_rank(self, obj):
+        count = UserProfile.objects.filter(rating__gt=obj.rating).count()
+        count += UserProfile.objects.filter(rating=obj.rating).filter(ac_total__gt=obj.ac_total).count()
+        return count + 1
+
+
+class RegistrantsSerializer(serializers.ModelSerializer):
+    school = serializers.SerializerMethodField()
+    rating = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'school', 'rating']
+
+    def get_school(self, obj):
+        return obj.userprofile.school
+
+    def get_rating(self, obj):
+        return obj.userprofile.rating

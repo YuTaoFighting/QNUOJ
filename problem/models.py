@@ -15,8 +15,7 @@ class ProblemTag(models.Model):
 
 
 class Problem(models.Model):
-    _id = models.TextField(db_index=True)
-    oj = models.CharField(max_length=32)
+    _id = models.TextField(db_index=True, unique=True)
     contest = models.ForeignKey(Contest, null=True, on_delete=models.CASCADE)
 
     # for contest problem
@@ -32,7 +31,7 @@ class Problem(models.Model):
     hint = models.TextField(null=True, blank=True)
     source = models.TextField(null=True, blank=True)
 
-    languages = models.TextField(default="['C', 'C++', 'Java', 'Python2', 'Python3']")
+    languages = models.TextField(default='["C", "C++", "Java", "Python2", "Python3"]')
 
     create_time = models.DateTimeField(auto_now_add=True)
     last_update_time = models.DateTimeField(null=True)
@@ -63,6 +62,10 @@ class Problem(models.Model):
 
     def add_ac_total(self):
         self.ac_total = models.F("ac_total") + 1
+        self.save(update_fields=["ac_total"])
+
+    def subject_ac_total(self):
+        self.ac_total = models.F("ac_total") - 1
         self.save(update_fields=["ac_total"])
 
     class Meta:

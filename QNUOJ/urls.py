@@ -17,7 +17,12 @@ from django.conf.urls import url
 from django.contrib import admin
 
 from announcement.views import AnnouncementAPIView, AnnouncementsAPIView
-from account.views import UsersAPIView, UserAPIView, UserProfilesAPIView, UserProfileAPIView
+from account.views import UsersAPIView, UserAPIView, UserProfilesAPIView, UserProfileAPIView, RankListAPIView
+from contest.views import ContestsAPIView, ContestAPIView
+from problem.views import ProblemsAPIView, ProblemAPIView, Problem_idAPIView
+from remoteoj.views import RemoteOJAPIView
+from submission.views import SubmissionsAPIView, SubmissionAPIView
+from utils.views import FriendLinksAPIView
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
@@ -27,4 +32,14 @@ urlpatterns = [
     url(r'^userprofiles/(?P<pk>\d+)/$', UserProfileAPIView.as_view()),
     url(r'^announcements/$', AnnouncementsAPIView.as_view()),
     url(r'^announcements/(?P<pk>\d+)/$', AnnouncementAPIView.as_view()),
+    url(r'^ranklist/$', RankListAPIView.as_view()),
+    url(r'^problems/$', ProblemsAPIView.as_view()),
+    url(r'^problems/(?P<pk>\d+)/$', ProblemAPIView.as_view()),
+    url(r'^problems/(?P<id>[a-zA-Z]+-\d+)/$', Problem_idAPIView.as_view()),
+    url(r'^contests/$', ContestsAPIView.as_view()),
+    url(r'^contests/(?P<pk>\d+)/$', ContestAPIView.as_view()),
+    url(r'^submissions/$', SubmissionsAPIView.as_view()),
+    url(r'^submissions/(?P<pk>\d+)/$', SubmissionAPIView.as_view()),
+    url(r'^general/activeojs/$', RemoteOJAPIView.as_view()),
+    url(r'^general/friendlinks/$', FriendLinksAPIView.as_view()),
 ]

@@ -1,16 +1,19 @@
 from rest_framework import generics
 
+from account.auth import UserAuth
 from announcement.models import Announcement
 from utils.paginations import CommonPagination
-from announcement.serializers import AnnouncementSerializer
+from announcement.serializers import AnnouncementSerializer, AnnouncementsSerializer
 
 
 class AnnouncementsAPIView(generics.ListCreateAPIView):
+    authentication_classes = (UserAuth,)
     pagination_class = CommonPagination
-    queryset = Announcement.objects.all()
-    serializer_class = AnnouncementSerializer
+    queryset = Announcement.objects.filter(is_visible=True)
+    serializer_class = AnnouncementsSerializer
 
 
 class AnnouncementAPIView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Announcement.objects.all()
+    authentication_classes = (UserAuth,)
+    queryset = Announcement.objects.filter(is_visible=True)
     serializer_class = AnnouncementSerializer

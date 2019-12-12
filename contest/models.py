@@ -13,36 +13,26 @@ class Contest(models.Model):
     title = models.TextField()
     description = models.TextField()
     real_time_rank = models.BooleanField(default=True)
-    rule_type = models.CharField(max_length=12)
+    rule_type = models.CharField(max_length=12, choices=(
+        (ContestRuleType.ACM, ContestRuleType.ACM),
+        (ContestRuleType.OI, ContestRuleType.OI),
+        (ContestRuleType.LanQiaoBei, ContestRuleType.LanQiaoBei)))
     begin_time = models.DateTimeField()
     end_time = models.DateTimeField()
     create_time = models.DateTimeField(auto_now_add=True)
     last_update_time = models.DateTimeField(auto_now=True)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_by = models.ForeignKey(User, related_name='created_user', on_delete=models.CASCADE)
     is_visible = models.BooleanField(default=True)
     allowed_ips = models.TextField(default='', null=True, blank=True)
-    enter_permission = models.TextField(default=f'allow_contest:{id}')
-    rank_permission = models.TextField(default=f'allow_look_rank_at_any_time:{id}')
-
-    @property
-    def is_allow(self, user):
-        for role in user.role_set:
-            for permission in role.permission_set:
-                if permission.name == self.enter_permission:
-                    return True
-        return False
-
-    @property
-    def is_allow_look_rank_at_any_time(self, user):
-        for role in user.role_set:
-            for permission in role.permission_set:
-                if permission.name == self.rank_permission:
-                    return True
-        return False
+    registrants = models.ManyToManyField(User, related_name='registrants')
 
     class Meta:
         db_table = "contest"
         ordering = ("-begin_time",)
+
+    def add_registrant(self, user):
+        self.registrants.add(user)
+        self.save()
 
 
 class AbstractContestRank(models.Model):

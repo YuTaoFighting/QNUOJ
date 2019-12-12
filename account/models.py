@@ -22,7 +22,9 @@ class User(models.Model):
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    desc = models.TextField(null=True, blank=True)
     ac_problems = models.TextField(default='', blank=True)
+    ac_total = models.PositiveIntegerField(default=0)
     real_name = models.TextField(null=True)
     avatar = models.TextField(null=True)
     blog = models.URLField(null=True)
@@ -41,3 +43,16 @@ class UserProfile(models.Model):
 
     class Meta:
         db_table = "user_profile"
+
+
+class Rating(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    contest_id = models.IntegerField()
+    contest_title = models.TextField()
+    contest_begin_time = models.DateTimeField()
+    rating = models.FloatField(default=1500.0)
+    change = models.FloatField(default=0.0)
+
+    class Meta:
+        db_table = "rating_change"
+        unique_together = (("user", "contest_id"),)

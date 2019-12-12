@@ -1,3 +1,9 @@
-from django.shortcuts import render
+from rest_framework import generics
 
-# Create your views here.
+from utils.models import FriendLink
+from utils.serializers import FriendLinksSerializer
+
+
+class FriendLinksAPIView(generics.ListCreateAPIView):
+    queryset = FriendLink.objects.all()
+    serializer_class = FriendLinksSerializer

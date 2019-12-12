@@ -11,7 +11,7 @@ class UserAuth(BaseAuthentication):
         try:
             u_id = cache.get(token)
             user = User.objects.get(pk=u_id)
-
+            cache.set(token, u_id, 60 * 60 * 2)
             return user, token
         except:
             return None
