@@ -1,5 +1,6 @@
 import json
 import logging
+from json.decoder import JSONDecodeError
 from uuid import uuid4
 
 import dramatiq
@@ -92,11 +93,10 @@ def judge(submission_id):
             'memory': 0,
             'point': []
         }
-
         status, output = run(' '.join(cmd))
         logger.info(str(output))
         # print(output)
-        os.remove(source_code_filename)
+        # os.remove(source_code_filename)
         if status != 0:
             final_result['result'] = 'Judge Error'
             final_result['score'] = 0
@@ -198,6 +198,11 @@ def judge(submission_id):
                 # update database here
                 push_judge_result(submition_id, final_result)
                 return None
-    except Exception as e:
-        logger.debug(e)
+    # except Exception as e:
+    #     logger.error(e)
+    #     os.remove(source_code_filename)
+    except JSONDecodeError as e:
+        logger.error(e)
+        raise JSONDecodeError
+    finally:
         os.remove(source_code_filename)

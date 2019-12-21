@@ -71,7 +71,7 @@ class UsersAPIView(generics.ListAPIView):
                 user = User.objects.create(**perform_save(serializer))
                 UserProfile.objects.create(user=user)
                 return Response({
-                    'msg': 'register success',
+                    'detail': 'register success',
                     'data': {
                         'id': user.id,
                         'username': user.username,
@@ -105,7 +105,7 @@ class UsersAPIView(generics.ListAPIView):
                     token = uuid.uuid4().hex
                     cache.set(token, user.id, 60 * 60 * 2)
                     data = {
-                        'msg': 'login success',
+                        'detail': 'login success',
                         'token': token,
                         'data': {
                             'id': user.id,
